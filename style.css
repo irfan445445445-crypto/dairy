@@ -4,7 +4,9 @@ html,body { height:100%; }
 
 body {
   margin: 0;
-  padding: 0;
+  /* CRITICAL FOR FIXED FOOTER */
+  padding: 0 0 70px 0; 
+  /* --- */
   font-family: 'Poppins', sans-serif;
   background: #0d1117;
   background-image: url('https://i.pinimg.com/1200x/0b/da/e8/0bdae80c85ca789bf3f2313990ac595e.jpg');
@@ -30,8 +32,26 @@ body::before {
 .center { text-align:center; }
 
 /* Headings */
-h1, h2 { font-family: 'Cinzel Decorative', serif; color:#ffd700; text-shadow:2px 2px 8px rgba(0,0,0,0.6); margin:12px 0; }
-h1 { font-size: clamp(1.6rem, 4vw, 2.5rem); }
+h1, h2 { font-family: 'Cinzel Decorative', serif; color:#ffd700; text-shadow:2px 2px 8px rgba(0,0,0,0.8); margin:12px 0; }
+h1 { 
+    font-size: clamp(1.6rem, 4vw, 2.5rem); 
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    /* Unique: Subtle ornamental rule below H1 */
+    border-bottom: 1px solid rgba(255, 215, 0, 0.4);
+    position: relative;
+}
+h1::after {
+    content: "✶"; /* Star or small character for decoration */
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ffd700;
+    font-size: 0.8em;
+    text-shadow: 0 0 5px #ffd700;
+}
+
 
 /* Input */
 input[type="password"], input {
@@ -43,11 +63,30 @@ input[type="password"], input {
   text-align:center;
   background: rgba(255,255,255,0.04);
   color: #fff;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
 }
-input:focus { outline:none; box-shadow:0 0 10px rgba(255,217,0,0.2); }
+input:focus { outline:none; box-shadow:0 0 15px rgba(255,217,0,0.5), inset 0 0 5px rgba(255,217,0,0.2); }
 
-/* Buttons */
-.button-group { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:12px; }
+/* Buttons & Links */
+.button-group { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:20px; margin-bottom: 20px;}
+.button-group a {
+    text-decoration: none;
+    padding:12px 20px;
+    border-radius:40px;
+    background:#ffd700;
+    color:#0d1117;
+    border:none;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 8px 16px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.4);
+    transition:transform .18s ease, box-shadow .18s ease;
+}
+.button-group a:hover { 
+    transform:translateY(-5px); 
+    box-shadow:0 12px 28px rgba(0,0,0,0.7), inset 0 2px 4px rgba(255,255,255,0.4); 
+}
+.button-group a:active { transform:translateY(-2px); }
+
 button {
   padding:12px 20px;
   border-radius:40px;
@@ -56,18 +95,68 @@ button {
   border:none;
   font-weight:700;
   cursor:pointer;
-  box-shadow:0 6px 14px rgba(0,0,0,0.4);
+  box-shadow:0 8px 16px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.4);
   transition:transform .18s ease, box-shadow .18s ease;
 }
-button:hover { transform:translateY(-4px); box-shadow:0 10px 26px rgba(0,0,0,0.45); }
+button:hover { 
+    transform:translateY(-5px); 
+    box-shadow:0 12px 28px rgba(0,0,0,0.7), inset 0 2px 4px rgba(255,255,255,0.4); 
+}
 button:active { transform:translateY(-2px); }
 
 /* Helper */
 .hidden { display:none; }
 .error { color:#ffb3b3; margin-top:10px; font-size:0.95rem; }
 
+/* Diary Entry Document Styling (Invisibility/Transparency added here) */
+.document-container {
+    background-color: rgba(30, 30, 30, 0.5); /* Reduced opacity for invisibility */
+    border: 1px solid #ffd700;
+    box-shadow: 0 0 60px rgba(255, 215, 0, 0.35); 
+    padding: 30px;
+    margin: 20px auto;
+    max-width: 900px;
+    width: 95%;
+    border-radius: 8px;
+    text-align: left;
+}
+.diary-entry {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    padding: 15px;
+    min-height: 200px;
+    white-space: pre-wrap;
+}
+
+/* Edit Mode Indicators (Only keeping the border/background change for the editable area) */
+.diary-entry[contenteditable="true"] {
+    border: 2px dashed #ffd700;
+    padding: 13px;
+    background-color: rgba(255, 215, 0, 0.02); /* Reduced opacity for editing box */
+    box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.2);
+    cursor: text;
+}
+
+/* --- FIXED FOOTER STYLES (Updated) --- */
+footer {
+    position: fixed; /* Keep it in place */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    /* Removed: background-color: rgba(13, 17, 23, 0.9); */
+    padding: 10px 0;
+    z-index: 999; /* Ensure it stays above other content */
+}
+
+footer .button-group {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+/* --- END FIXED FOOTER STYLES --- */
+
 /* Responsive */
 @media (max-width:520px){
   input { width:170px; }
   button { width: 92%; }
+  .button-group a { width: 92%; }
 }
