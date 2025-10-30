@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Select Year</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Cinzel+Decorative&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="page center" id="yearsPage">
+    <h1>Select Year</h1>
+    <div class="button-group" id="yearButtons">
+      <!-- JS will fill -->
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+  <script>
+    // Ensure page protected, then render years
+    document.addEventListener('DOMContentLoaded', () => {
+      protectPage(); // redirects to index if no mode
+      // Only show 2025 for now
+      const container = document.getElementById('yearButtons');
+      const btn = document.createElement('button');
+      btn.textContent = '2025';
+      btn.addEventListener('click', () => {
+        // go to months page for 2025
+        window.location.href = 'years/2025/months.html';
+      });
+      container.appendChild(btn);
+    });
+  </script>
+</body>
+</html>

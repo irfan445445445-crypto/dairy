@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Secret Diary — Unlock</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Cinzel+Decorative&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="page center">
+    <h1>Enter 4-Digit Password</h1>
+
+    <input id="passwordInput" type="password" maxlength="4" inputmode="numeric" placeholder="****" />
+
+    <div class="button-group">
+      <button id="unlockBtn">Unlock</button>
+    </div>
+
+    <p id="errorMsg" class="error hidden">Wrong password. Try again.</p>
+    <p style="margin-top:18px;color:#ddd;font-size:14px;">
+      Use <strong>1234</strong> for view-only, <strong>4321</strong> for edit mode.
+    </p>
+  </main>
+
+  <script src="script.js"></script>
+  <script>
+    document.getElementById('unlockBtn').addEventListener('click', () => {
+      const v = document.getElementById('passwordInput').value.trim();
+      checkAndSaveMode(v);
+    });
+
+    // press Enter to submit
+    document.getElementById('passwordInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('unlockBtn').click();
+    });
+  </script>
+</body>
+</html>
