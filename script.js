@@ -229,7 +229,7 @@ function checkProtectionAndApplyMode() {
             // 3. Export Button (Backup)
             const exportButton = document.createElement('button');
             exportButton.textContent = 'Export HTML Backup';
-            exportButton.onclick = () => copyDiaryContentToClipboard(diaryEntry);
+            exportButton.onclick = () => copyDiaryContentToClipboard(diaryElement);
             buttonGroup.appendChild(exportButton);
             
             saveButtonContainer.appendChild(buttonGroup);
