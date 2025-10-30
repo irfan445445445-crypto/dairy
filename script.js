@@ -229,7 +229,7 @@ function checkProtectionAndApplyMode() {
             // 3. Export Button (Backup)
             const exportButton = document.createElement('button');
             exportButton.textContent = 'Export HTML Backup';
-            exportButton.onclick = () => copyDiaryContentToClipboard(diaryElement);
+            exportButton.onclick = () => copyDiaryContentToClipboard(diaryEntry);
             buttonGroup.appendChild(exportButton);
             
             saveButtonContainer.appendChild(buttonGroup);
@@ -316,8 +316,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (mode) {
                 localStorage.setItem(MODE_KEY, mode);
-                // Redirect logic
-                window.location.href = "Years.html"; 
+                // CORRECTED REDIRECTION: Path now points to the file inside the Years/ folder
+                window.location.href = "Years/Years.html"; 
             } else {
                 errorMessage.style.display = 'block';
                 passwordInput.value = '';
