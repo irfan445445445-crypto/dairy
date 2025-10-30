@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>September 1, 2025 | First Draft</title>
+    
+    <!-- CSS is three levels up: ../../../style.css -->
+    <link rel="stylesheet" href="../../../style.css"> 
+    <style>
+        /* Custom styling for the main content navigation */
+        .entry-nav {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .entry-nav a {
+            color: #ffd700;
+            text-decoration: none;
+            font-size: 0.9em;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Use a wrapper div to center the content block, but don't use .page as it stretches content -->
+    <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center;">
+
+        <!-- This container is visible ONLY in Edit Mode (4321) and holds the Save/Export buttons -->
+        <div id="save-button-container" style="text-align: center; margin-top: 50px; margin-bottom: 20px; display: none;">
+            <!-- Buttons will be inserted here by script.js -->
+        </div>
+
+        <div class="document-container">
+            <header>
+                <h1>September 1, 2025</h1>
+            </header>
+
+            <nav class="entry-nav">
+                <a href="days.html">← Back to Days</a> | 
+                <a href="../../../Years.html">Change Year</a>
+            </nav>
+            
+            <!-- *** This div is targeted by script.js for editing and content storage *** -->
+            <div class="diary-entry" contenteditable="false">
+                <p>
+                    Today was the day. After spending hours defining the structure and the tricky relative paths, the whole diary archive finally clicked together. It feels great to see the cinematic gold theme load across all the pages correctly.
+                </p>
+                <p>
+                    I tested the access codes: <strong>1234</strong> works perfectly, locking the content down but allowing me to view it. When I used <strong>4321</strong>, the edit mode enabled this text box.
+                </p>
+                <p>
+                    This document is now connected to <strong>Firebase</strong>! When you click 'Save Changes Permanently', the content will be saved to the cloud, allowing you and others with the viewing code to see the latest version on any device.
+                </p>
+                <br>
+                <p style="text-align: right; color: #DAA520; font-size: 0.9em;">— The Keeper</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS is three levels up: ../../../script.js -->
+    <!-- CRITICAL: Must be type="module" for Firebase imports to work -->
+    <script type="module" src="../../../script.js"></script>
+
+    <footer>
+        <div class="button-group">
+            <button onclick="history.back()">← Go Back</button>
+        </div>
+    </footer>
+</body>
+</html>
