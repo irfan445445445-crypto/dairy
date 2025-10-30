@@ -19,13 +19,30 @@
             font-size: 0.9em;
             margin: 0 10px;
         }
+        /* Style for the Gemini Analysis Output box */
+        #analysis-output {
+            margin-top: 30px;
+            padding: 20px;
+            border-left: 5px solid #ffd700;
+            background-color: rgba(255, 215, 0, 0.05); /* Very subtle gold tint */
+            border-radius: 4px;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+        #analysis-output p {
+            margin: 8px 0;
+            color: #ccc;
+        }
+        #analysis-output strong {
+            color: #ffd700;
+        }
     </style>
 </head>
 <body>
     <!-- Use a wrapper div to center the content block, but don't use .page as it stretches content -->
     <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center;">
 
-        <!-- This container is visible ONLY in Edit Mode (4321) and holds the Save/Export buttons -->
+        <!-- This container is visible ONLY in Edit Mode (4321) and holds the Save/Export/Analyze buttons -->
         <div id="save-button-container" style="text-align: center; margin-top: 50px; margin-bottom: 20px; display: none;">
             <!-- Buttons will be inserted here by script.js -->
         </div>
@@ -49,16 +66,20 @@
                     I tested the access codes: <strong>1234</strong> works perfectly, locking the content down but allowing me to view it. When I used <strong>4321</strong>, the edit mode enabled this text box.
                 </p>
                 <p>
-                    This document is now connected to <strong>Firebase</strong>! When you click 'Save Changes Permanently', the content will be saved to the cloud, allowing you and others with the viewing code to see the latest version on any device.
+                    This document is now connected to <strong>Firebase</strong>! When you click 'Save Changes Permanently', the content will be saved to the cloud, allowing you and others with the viewing code to see the latest version on any device. Try writing a new entry and then clicking the '✨ Analyze & Reflect' button!
                 </p>
                 <br>
                 <p style="text-align: right; color: #DAA520; font-size: 0.9em;">— The Keeper</p>
+            </div>
+
+            <!-- New Section for Gemini Analysis Output -->
+            <div id="analysis-output">
+                <p style="color:#ccc;">Your AI-powered analysis will appear here after you click the '✨ Analyze & Reflect' button.</p>
             </div>
         </div>
     </div>
 
     <!-- JS is three levels up: ../../../script.js -->
-    <!-- CRITICAL: Must be type="module" for Firebase imports to work -->
     <script type="module" src="../../../script.js"></script>
 
     <footer>
