@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (mode) {
                 localStorage.setItem(MODE_KEY, mode);
-                // CORRECTED REDIRECTION: Path now points to the file inside the Years/ folder
+                // CORRECTED REDIRECTION: Path now points to the file inside the Years/ folder (Years/Years.html)
                 window.location.href = "Years/Years.html"; 
             } else {
                 errorMessage.style.display = 'block';
