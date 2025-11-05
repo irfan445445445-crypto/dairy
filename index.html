@@ -14,7 +14,7 @@
 </head>
 <body>
 
-<iframe id="contentFrame" src="index.html"></iframe>
+<iframe id="contentFrame" src="main.html"></iframe>
 <iframe id="musicFrame" src="music_player.html" style="display:none;"></iframe>
 
 <script>
@@ -114,7 +114,7 @@ function goToPasswordPage() {
   removeTimeDisplay();
   if (inactivityModal) { inactivityModal.remove(); inactivityModal = null; }
   sessionStorage.removeItem("mode");
-  contentFrame.src = "index.html";
+  contentFrame.src = "main.html";
   setTimeout(() => lockHistoryOnPassword(), 300);
 }
 function lockHistoryOnPassword() {
@@ -225,3 +225,4 @@ window.addEventListener("popstate", () => {
 </script>
 </body>
 </html>
+
