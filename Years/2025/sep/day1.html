@@ -1,91 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>September 1, 2025 | First Draft</title>
-    
-    <!-- FIXED: Path is now "../../../style.css" (up three levels to the root) -->
-    <link rel="stylesheet" href="../../../style.css"> 
-    <style>
-        /* Custom styling for the main content navigation */
-        .entry-nav {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .entry-nav a {
-            color: #ffd700;
-            text-decoration: none;
-            font-size: 0.9em;
-            margin: 0 10px;
-        }
-        /* Style for the Gemini Analysis Output box */
-        #analysis-output {
-            margin-top: 30px;
-            padding: 20px;
-            border-left: 5px solid #ffd700;
-            background-color: rgba(255, 215, 0, 0.05); /* Very subtle gold tint */
-            border-radius: 4px;
-            font-size: 0.95em;
-            line-height: 1.6;
-        }
-        #analysis-output p {
-            margin: 8px 0;
-            color: #ccc;
-        }
-        #analysis-output strong {
-            color: #ffd700;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 1 — September 2025</title>
+  <link rel="stylesheet" href="../../../style.css" />
 </head>
 <body>
-    <!-- Use a wrapper div to center the content block, but don't use .page as it stretches content -->
-    <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center;">
+  <div class="container fade-in">
+    <h2>Day 1 — September 2025</h2>
 
-        <!-- This container is visible ONLY in Edit Mode (4321) and holds the Save/Export/Analyze buttons -->
-        <div id="save-button-container" style="text-align: center; margin-top: 50px; margin-bottom: 20px; display: none;">
-            <!-- Buttons will be inserted here by script.js -->
-        </div>
+    <!-- Viewer area -->
+    <div id="viewArea"></div>
 
-        <div class="document-container">
-            <header>
-                <h1>September 1, 2025</h1>
-            </header>
-
-            <nav class="entry-nav">
-                <a href="days.html">← Back to Days</a> | 
-                <a href="../../../Years.html">Change Year</a>
-            </nav>
-            
-            <!-- *** This div is targeted by script.js for editing and content storage *** -->
-            <div class="diary-entry" contenteditable="false">
-                <p>
-                    Today was the day. After spending hours defining the structure and the tricky relative paths, the whole diary archive finally clicked together. It feels great to see the cinematic gold theme load across all the pages correctly.
-                </p>
-                <p>
-                    I tested the access codes: <strong>1234</strong> works perfectly, locking the content down but allowing me to view it. When I used <strong>4321</strong>, the edit mode enabled this text box.
-                </p>
-                <p>
-                    This document is now connected to <strong>Firebase</strong>! When you click 'Save Changes Permanently', the content will be saved to the cloud, allowing you and others with the viewing code to see the latest version on any device. Try writing a new entry and then clicking the '✨ Analyze & Reflect' button!
-                </p>
-                <br>
-                <p style="text-align: right; color: #DAA520; font-size: 0.9em;">— The Keeper</p>
-            </div>
-
-            <!-- New Section for Gemini Analysis Output -->
-            <div id="analysis-output">
-                <p style="color:#ccc;">Your AI-powered analysis will appear here after you click the '✨ Analyze & Reflect' button.</p>
-            </div>
-        </div>
+    <!-- Admin area -->
+    <div id="adminArea" style="display:none;">
+      <div id="editBox" contenteditable="true"></div>
+      <div class="row" style="margin-top:10px; display:flex; gap:10px;">
+        <button id="addPhotoBtn">Insert Image Link</button>
+        <button id="saveBtn">Save</button>
+      </div>
     </div>
 
-    <!-- FIXED: Path is now "../../../script.js" (up three levels to the root) -->
-    <script type="module" src="../../../script.js"></script>
+    <!-- Message area -->
+    <div id="messageArea" style="margin-top:20px;">
+      <textarea id="msgText" placeholder="Send a message to admin..."></textarea>
+      <button id="sendMsg">Send</button>
+    </div>
 
-    <footer>
-        <div class="button-group">
-            <button onclick="history.back()">← Go Back</button>
-        </div>
-    </footer>
+    <div class="bottom-row">
+      <button id="backBtn">Back</button>
+      <button id="muteBtn">Mute</button>
+    </div>
+  </div>
+
+  <!-- Firebase + Telegram + App Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    // ===== FIREBASE CONFIG =====
+    const firebaseConfig = {
+      apiKey: "AIzaSyDzicsuxkeprGCJ06kDH6rPf_9gO4iO9Ic",
+      authDomain: "dairy-mi.firebaseapp.com",
+      projectId: "dairy-mi",
+      storageBucket: "dairy-mi.appspot.com",
+      messagingSenderId: "772333093317",
+      appId: "1:772333093317:web:ef70b12b4d832caa9c4bac",
+      measurementId: "G-17FXDZ3C65"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // ===== TELEGRAM CONFIG =====
+    const BOT_TOKEN = "6729932945:AAEiLXBhsqtIAZRkuhFA_8U4i1sgTKkkfYQ";
+    const CHAT_ID = "1214303092";
+
+    function sendToTelegram(message) {
+      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: CHAT_ID,
+          text: message,
+          parse_mode: "HTML"
+        })
+      }).catch(err => console.error("Telegram Error:", err));
+    }
+
+    // ===== PAGE SETUP =====
+    const dayId = "day_2025_sep_1";
+    let mode = "view";
+
+    const viewArea = document.getElementById("viewArea");
+    const adminArea = document.getElementById("adminArea");
+    const editBox = document.getElementById("editBox");
+
+
+    // Receive mode from parent (admin or viewer)
+    window.addEventListener("message", (e) => {
+      if (e.data?.type === "setMode") applyMode(e.data.mode);
+    });
+    parent.postMessage({ type: "requestMode" }, "*");
+
+    function applyMode(m) {
+      mode = m;
+      if (mode === "admin") {
+        adminArea.style.display = "";
+        document.getElementById("messageArea").style.display = "none";
+        viewArea.style.display = "none";
+        loadFromFirebase();
+        sendToTelegram("🛠️ Admin mode activated on Day 1");
+      } else {
+        adminArea.style.display = "none";
+        document.getElementById("messageArea").style.display = "";
+        viewArea.style.display = "";
+        loadFromFirebase();
+      }
+    }
+
+    // ===== LOAD FROM FIRESTORE =====
+    async function loadFromFirebase() {
+      try {
+        const docRef = doc(db, "diary", dayId);
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          const content = data.text || "";
+          viewArea.innerHTML = content;
+          if (mode === "admin") editBox.innerHTML = content;
+        } else {
+          viewArea.innerHTML = "<em>No content yet.</em>";
+        }
+      } catch (err) {
+        console.error("Error loading:", err);
+        viewArea.innerHTML = "<em>Failed to load data.</em>";
+      }
+    }
+
+    // ===== INSERT IMAGE =====
+    document.getElementById("addPhotoBtn").addEventListener("click", () => {
+      const url = prompt("Enter image URL:");
+      if (url) {
+        const img = document.createElement("img");
+        img.src = url;
+        img.className = "diary-image";
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount) {
+          const range = sel.getRangeAt(0);
+          range.insertNode(img);
+          range.collapse(false);
+        } else {
+          editBox.appendChild(img);
+        }
+      }
+    });
+
+    // ===== SAVE TO FIRESTORE =====
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+      try {
+        const html = editBox.innerHTML;
+        await setDoc(doc(db, "diary", dayId), {
+          text: html,
+          updated: new Date().toISOString()
+        });
+        loadFromFirebase();
+        sendToTelegram("💾 Admin saved updates to Day 1 entry.");
+      } catch (err) {
+        console.error("Error saving:", err);
+      }
+    });
+
+    // ===== SEND MESSAGE TO TELEGRAM =====
+    document.getElementById("sendMsg").addEventListener("click", () => {
+      const msg = (document.getElementById("msgText").value || "").trim();
+      if (!msg) return;
+      const key = "messages_" + dayId;
+      const arr = JSON.parse(localStorage.getItem(key) || "[]");
+      arr.push({ text: msg, time: Date.now() });
+      localStorage.setItem(key, JSON.stringify(arr));
+      document.getElementById("msgText").value = "";
+
+      // Send to Telegram silently
+      sendToTelegram(`💬 New message on Day 1:\n${msg}`);
+    });
+
+    // ===== NAVIGATION BUTTONS =====
+    document.getElementById("backBtn").addEventListener("click", () => {
+      parent.postMessage({ type: "navigate", to: "Years/2025/sep/days.html" }, "*");
+      sendToTelegram("⬅️ User clicked Back on Day 1 page.");
+    });
+
+    document.getElementById("muteBtn").addEventListener("click", () => {
+      parent.postMessage({ type: "toggleMute" }, "*");
+      sendToTelegram("🔇 User toggled mute on Day 1 page.");
+    });
+
+    // Initial load
+    loadFromFirebase();
+  </script>
 </body>
 </html>
