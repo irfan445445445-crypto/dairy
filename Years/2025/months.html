@@ -1,34 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2025 Months</title>
-    
-    <!-- FIXED: Path is now "../../style.css" (up two levels to the root) -->
-    <link rel="stylesheet" href="../../style.css"> 
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Months</title>
+<link rel="stylesheet" href="../../style.css">
 </head>
 <body>
-    <div class="page">
-        <header class="center">
-            <h1>2025 Entries</h1>
-        </header>
+<div class="container">
+  <h2>Months — 2025</h2>
+  <div id="monthsGrid" class="grid"></div>
 
-        <div class="button-group">
-            <a href="sep/days.html">September</a>
-            <a href="#">October (Locked)</a>
-            <a href="#">November (Locked)</a>
-            <a href="#">December (Locked)</a>
-        </div>
-    </div>
-    
-    <!-- FIXED: Path is now "../../script.js" (up two levels to the root) -->
-    <script type="module" src="../../script.js"></script>
+  <div class="bottom-row">
+    <button id="backBtn">Back</button>
+    <button id="muteBtn">Mute</button>
+  </div>
+</div>
 
-    <footer>
-        <div class="button-group" style="margin-top: 50px;">
-            <button onclick="history.back()">← Go Back</button>
-        </div>
-    </footer>
+<script>
+let mode = "view";
+
+window.addEventListener("DOMContentLoaded", () => {
+  parent.postMessage({ type: "requestMode" }, "*");
+});
+window.addEventListener("message", e => {
+  if(e.data?.type==="setMode") mode = e.data.mode;
+});
+
+const months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+const grid = document.getElementById('monthsGrid');
+months.forEach(m => {
+  const b = document.createElement('button');
+  b.textContent = m.toUpperCase();
+  b.addEventListener('click', ()=> parent.postMessage({ type:'navigate', to:`Years/2025/${m}/days.html`, mode }, '*'));
+  grid.appendChild(b);
+});
+
+document.getElementById("backBtn").addEventListener("click", ()=> parent.postMessage({ type:'navigate', to:'Years/Years.html' }, '*'));
+document.getElementById("muteBtn").addEventListener("click", ()=> parent.postMessage({ type:'toggleMute' }, '*'));
+
+
+</script>
 </body>
 </html>
