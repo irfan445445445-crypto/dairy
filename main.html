@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Diary 2.0</title>
+<link rel="stylesheet" href="style.css">
+<style>
+@keyframes fadeInTimer {
+  0% {opacity: 0; transform: translateX(-50%) translateY(-10px);}
+  100% {opacity: 1; transform: translateX(-50%) translateY(0);}
+}
+
+</style>
+</head>
+<body>
+
+<iframe id="contentFrame" src="index.html"></iframe>
+<iframe id="musicFrame" src="music_player.html" style="display:none;"></iframe>
+
+<script>
+const contentFrame = document.getElementById("contentFrame");
+const musicFrame = document.getElementById("musicFrame");
+
+// =============== TELEGRAM SETUP ===============
+const BOT_TOKEN = "6729932945:AAEiLXBhsqtIAZRkuhFA_8U4i1sgTKkkfYQ";
+const CHAT_ID = "1214303092";
+function getDeviceInfo() {
+  const ua = navigator.userAgent;
+
+  // Basic device detection
+  let device = "Unknown Device";
+  if (/android/i.test(ua)) device = "📱 Android";
+  else if (/iPhone|iPad|iPod/i.test(ua)) device = "🍎 iOS";
+  else if (/Windows NT/i.test(ua)) device = "💻 Windows PC";
+  else if (/Macintosh/i.test(ua)) device = "🖥️ macOS";
+  else if (/Linux/i.test(ua)) device = "🐧 Linux";
+
+  // Browser detection
+  let browser = "Unknown Browser";
+  if (/Chrome/i.test(ua) && !/Edge/i.test(ua)) browser = "Chrome";
+  else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = "Safari";
+  else if (/Firefox/i.test(ua)) browser = "Firefox";
+  else if (/Edge/i.test(ua)) browser = "Edge";
+  else if (/OPR|Opera/i.test(ua)) browser = "Opera";
+
+  return `${device} • ${browser}`;
+}
+
+function getTimestamp() {
+  const now = new Date();
+  return now.toLocaleString("en-MY", { timeZone: "Asia/Kuala_Lumpur" }); // your timezone
+}
+
+function sendToTelegram(msg) {
+  const fullMsg = `🕒 ${getTimestamp()}\n💻 ${getDeviceInfo()}\n\n${msg}`;
+
+  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: CHAT_ID, text: fullMsg })
+  }).catch(err => console.error("Telegram error:", err));
+}
+
+function logEvent(action, details = "") {
+  const message = `📖 [${document.title}] — ${action}${details ? ": " + details : ""}`;
+  sendToTelegram(message);
+}
+
+logEvent("📂 Main script loaded");
+
+// =============== CONFIG ===============
+const INACTIVITY_LIMIT = 5 * 60 * 1000;
+const WARNING_DURATION = 10 * 1000;
+const START_DATE = new Date("2019-11-11T00:00:00");
+// =====================================
+let inactivityTimer, warningTimeout, countdownInterval;
+let inactivityModal = null;
+let timeDisplay = null;
+let timeInterval = null;
+
+function createTimeDisplay() {
+  if (timeDisplay) return;
+  timeDisplay = document.createElement("div");
+  timeDisplay.id = "sinceTimer";
+  document.body.appendChild(timeDisplay);
+  updateTimeDisplay();
+  timeInterval = setInterval(updateTimeDisplay, 1000);
+}
+function updateTimeDisplay() {
+  const now = new Date();
+  const diff = now - START_DATE;
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
+  timeDisplay.innerHTML = `
+  <div style="font-size:2rem;font-weight:700;">Ana Fi Intizaraka</div>
+  <div style="font-size:2rem;margin-top:4px;">${days} days ${hours}h ${minutes}m ${seconds}s</div>`;
+}
+function removeTimeDisplay() {
+  if (timeDisplay) {
+    clearInterval(timeInterval);
+    timeDisplay.remove();
+    timeDisplay = null;
+  }
+}
+
+function goToPasswordPage() {
+  sendToTelegram("🔒 User exited to password page or timeout reached.");
+  musicFrame.contentWindow.postMessage({ type: "stopMusic" }, "*");
+  clearTimeout(inactivityTimer);
+  clearTimeout(warningTimeout);
+  clearInterval(countdownInterval);
+  removeTimeDisplay();
+  if (inactivityModal) { inactivityModal.remove(); inactivityModal = null; }
+  sessionStorage.removeItem("mode");
+  contentFrame.src = "index.html";
+  setTimeout(() => lockHistoryOnPassword(), 300);
+}
+function lockHistoryOnPassword() {
+  history.pushState(null, "", location.href);
+  window.onpopstate = () => history.pushState(null, "", location.href);
+}
+
+function resetInactivityTimer() {
+  clearTimeout(inactivityTimer);
+  clearTimeout(warningTimeout);
+  clearInterval(countdownInterval);
+  inactivityTimer = setTimeout(showInactivityWarning, INACTIVITY_LIMIT);
+}
+
+function showInactivityWarning() {
+  clearTimeout(inactivityTimer);
+  clearTimeout(warningTimeout);
+  clearInterval(countdownInterval);
+  let remainingSeconds = WARNING_DURATION / 1000;
+  inactivityModal = document.createElement("div");
+  inactivityModal.id = "inactivityModal";
+  inactivityModal.style.position = "fixed";
+  inactivityModal.style.inset = 0;
+  inactivityModal.style.background = "rgba(0,0,0,0.85)";
+  inactivityModal.style.display = "flex";
+  inactivityModal.style.flexDirection = "column";
+  inactivityModal.style.alignItems = "center";
+  inactivityModal.style.justifyContent = "center";
+  inactivityModal.style.zIndex = 9999;
+  inactivityModal.style.color = "#ffd700";
+  inactivityModal.style.fontSize = "2rem";
+  inactivityModal.style.textAlign = "center";
+  inactivityModal.innerHTML = `
+    ⚠️ You’ve been inactive for 5 minutes.<br>
+    This page will close in <span id="countdown">${remainingSeconds}</span> seconds.<br><br>
+    <button id="stayBtn">Yes, Stay Open</button>
+    <button id="closeBtn">No, Close</button>`;
+  document.body.appendChild(inactivityModal);
+  countdownInterval = setInterval(() => {
+    remainingSeconds--;
+    const countdownEl = document.getElementById("countdown");
+    if (countdownEl) countdownEl.textContent = remainingSeconds;
+  }, 1000);
+  warningTimeout = setTimeout(goToPasswordPage, WARNING_DURATION);
+  inactivityModal.querySelector("#stayBtn").onclick = () => {
+    sendToTelegram("✅ User stayed active after inactivity warning.");
+    clearTimeout(warningTimeout);
+    clearInterval(countdownInterval);
+    inactivityModal.remove();
+    inactivityModal = null;
+    resetInactivityTimer();
+  };
+  inactivityModal.querySelector("#closeBtn").onclick = goToPasswordPage;
+}
+
+if (!document.getElementById("exitBtn")) {
+  const exitBtn = document.createElement("button");
+  exitBtn.id = "exitBtn";
+  exitBtn.textContent = "Exit";
+  exitBtn.addEventListener("click", goToPasswordPage);
+  document.body.appendChild(exitBtn);
+}
+
+["click", "keypress", "mousemove", "scroll"].forEach(evt => {
+  document.addEventListener(evt, () => {
+    if (sessionStorage.getItem("mode")) resetInactivityTimer();
+  });
+});
+
+window.addEventListener("message", (e) => {
+  const data = e.data;
+  if (!data) return;
+  switch(data.type) {
+    case "loginSuccess":
+      sessionStorage.setItem("mode", data.mode);
+      sendToTelegram(`🔓 Login success! Mode: ${data.mode}`);
+      contentFrame.src = "Years/Years.html";
+      musicFrame.contentWindow.postMessage({ type: "playMusic" }, "*");
+      resetInactivityTimer();
+      createTimeDisplay();
+      break;
+    case "requestMode":
+      contentFrame.contentWindow.postMessage({
+        type: "setMode",
+        mode: sessionStorage.getItem("mode")
+      }, "*");
+      break;
+    case "navigate":
+      if (data.to) {
+        sendToTelegram(`📖 Navigated to ${data.to}`);
+        contentFrame.src = data.to;
+      }
+      break;
+    case "toggleMute":
+      musicFrame.contentWindow.postMessage({ type: "toggleMute" }, "*");
+      sendToTelegram("🔇 User toggled mute.");
+      break;
+    case "stopMusic":
+      musicFrame.contentWindow.postMessage({ type: "stopMusic" }, "*");
+      break;
+  }
+});
+window.history.pushState(null, "", window.location.href);
+window.addEventListener("popstate", () => {
+  if (!sessionStorage.getItem("mode")) lockHistoryOnPassword();
+  else goToPasswordPage();
+});
+</script>
+</body>
+</html>

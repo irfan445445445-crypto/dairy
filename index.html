@@ -1,29 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Archive Gate</title>
-    
-    <link rel="stylesheet" href="style.css"> 
+<meta charset="UTF-8">
+<title>Login — Diary 2.0</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="page">
-        <header class="center">
-            <h1>The Sacred Archive</h1>
-            <h2>Enter the Passcode to Continue</h2>
-        </header>
+<div class="login-container fade-in">
+  <h2>Enter Password</h2>
+  <input 
+    type="password" 
+    id="passwordInput" 
+    placeholder="Enter 4-digit password" 
+    maxlength="4"        <!-- restricts to 4 characters -->
+   number only     <!-- ensures exactly 4 digits --> <!-- numeric keyboard on mobile -->
+  >
+  <button id="loginBtn">Login</button>
+  <p id="errorMsg" style="color:red;"></p>
+</div>
 
-        <form id="password-form" class="center" style="margin-top: 30px;">
-            <input type="password" id="password-input" placeholder="Passcode" required>
-            <div class="button-group">
-                <button type="submit">Unlock Archive</button>
-            </div>
-            <p id="error-message" class="error hidden">Access Denied. Check Passcode.</p>
-        </form>
-    </div>
-    
-    <!-- CRITICAL: Must be type="module" for Firebase imports to work -->
-    <script type="module" src="script.js"></script>
+<script>
+const passwordInput = document.getElementById("passwordInput");
+
+// Prevent non-numeric input and enforce 4-digit limit
+passwordInput.addEventListener("input", (e) => {
+  e.target.value = e.target.value.replace(/\D/g, ""); // remove non-digits
+  if (e.target.value.length > 4) e.target.value = e.target.value.slice(0, 4); // max 4 digits
+});
+
+document.getElementById("loginBtn").addEventListener("click", () => {
+  const pwd = passwordInput.value.trim();
+
+  let mode = null;
+  if (pwd === "1234") mode = "view";
+  else if (pwd === "4321") mode = "admin";
+  else {
+    document.getElementById("errorMsg").textContent = "❌ Incorrect password.";
+    return;
+  }
+
+  // send loginSuccess to parent
+  parent.postMessage({ type: "loginSuccess", mode }, "*");
+
+  // fade out
+  document.querySelector(".login-container").style.opacity = "0";
+  setTimeout(() => document.querySelector(".login-container").style.display = "none", 400);
+});
+</script>
 </body>
 </html>
