@@ -1,33 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>September Days</title>
-    
-    <!-- CSS is three levels up: ../../../style.css -->
-    <link rel="stylesheet" href="../../../style.css"> 
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Days - Sep 2025</title>
+<link rel="stylesheet" href="../../../style.css">
 </head>
 <body>
-    <div class="page">
-        <header class="center">
-            <h1>September Entries</h1>
-        </header>
+<div class="container">
+<h2>September 2025 — Days</h2>
+<div id="daysGrid" class="grid"></div>
 
-        <div class="button-group">
-            <a href="day1.html">Day 1</a>
-            <a href="#">Day 2 (Locked)</a>
-            <a href="#">Day 3 (Locked)</a>
-        </div>
-    </div>
-    
-    <!-- JS is three levels up: ../../../script.js -->
-    <script src="../../../script.js"></script>
 
-    <footer>
-        <div class="button-group" style="margin-top: 50px;">
-            <button onclick="history.back()">← Go Back</button>
-        </div>
-    </footer>
+<div class="bottom-row">
+<button id="backBtn">Back</button>
+<button id="muteBtn">Mute</button>
+</div>
+</div>
+
+
+<script>
+const daysInMonth = 30; // September
+const grid = document.getElementById('daysGrid');
+for (let d=1; d<=daysInMonth; d++){
+const b=document.createElement('button');
+b.textContent = 'Day ' + d;
+b.addEventListener('click', ()=> parent.postMessage({ type:'navigate', to:`Years/2025/sep/day${d}.html`, mode:window.mode || 'view' }, '*'));
+grid.appendChild(b);
+}
+
+
+document.getElementById('backBtn').addEventListener('click', ()=> parent.postMessage({ type:'navigate', to:'Years/2025/months.html' }, '*'));
+document.getElementById('muteBtn').addEventListener('click', ()=> parent.postMessage({ type:'toggleMute' }, '*'));
+
+
+
+window.addEventListener('message', e=>{ if (e.data?.type==='setMode') window.mode = e.data.mode; });
+parent.postMessage({ type:'requestMode' }, '*');
+
+</script>
+
 </body>
 </html>
