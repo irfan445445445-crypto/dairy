@@ -1,32 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Select a Year</title>
-    
-    <link rel="stylesheet" href="style.css"> 
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Years</title>
+<link rel="stylesheet" href="../style.css">
 </head>
 <body>
-    <div class="page">
-        <header class="center">
-            <h1>Select Archive Year</h1>
-        </header>
+<div class="container">
+  <h2>Select Year</h2>
+  <div id="yearsList" class="grid"></div>
 
-        <div class="button-group">
-            <!-- CRITICAL: Path must be correct relative to Years.html -->
-            <a href="2025/months.html">2025</a>
-            <a href="#">2026 (Coming Soon)</a>
-        </div>
-    </div>
+  <div class="bottom-row">
+    <backBtn id="backBtn">Back</backBtn>
+    <button id="muteBtn">Mute</button>
+  </div>
+</div>
 
-    <!-- JS is one level up/same level as this file: script.js -->
-    <script type="module" src="script.js"></script>
+<script>
+let mode = "view";
 
-    <footer>
-        <div class="button-group" style="margin-top: 50px;">
-            <button onclick="history.back()">← Go Back</button>
-        </div>
-    </footer>
+// Request mode from parent
+window.addEventListener("DOMContentLoaded", () => {
+  parent.postMessage({ type: "requestMode" }, "*");
+});
+
+// Receive mode
+window.addEventListener("message", e => {
+  if(e.data?.type==="setMode") mode = e.data.mode;
+});
+
+const years = [2023,2024,2025,2026];
+const yearsList = document.getElementById("yearsList");
+years.forEach(y => {
+  const b = document.createElement("button");
+  b.textContent = y;
+  b.addEventListener("click", () => {
+    parent.postMessage({ type: "navigate", to:`Years/${y}/months.html`, mode }, "*");
+  });
+  yearsList.appendChild(b);
+});
+
+document.getElementById("backBtn").addEventListener("click", ()=> parent.postMessage({ type:'navigate', to:'index.html' }, '*'));
+document.getElementById("muteBtn").addEventListener("click", ()=> parent.postMessage({ type:'toggleMute' }, '*'));
+
+</script>
 </body>
 </html>
