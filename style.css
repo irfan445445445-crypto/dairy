@@ -10,7 +10,7 @@ html, body {
   color: #fff;
   background: 
     linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1)), /* dark overlay */
-    url('https://i.pinimg.com/1200x/0b/da/e8/0bdae80c85ca789bf3f2313990ac595e.jpg');
+    url('back.jpg');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -272,4 +272,5 @@ iframe#contentFrame {
   border: none;
   margin-top: 150px; /* Lowered to avoid overlap with timer/button */
 }
+
 
