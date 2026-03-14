@@ -5,11 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Day 2 — September 2026</title>
   <link rel="stylesheet" href="../../../style.css" />
- 
 </head>
 <body>
   <div class="container fade-in">
-    <h2>Day 2 — September 2026</h2>
+    <h2>Day 2— September 2026</h2>
 
     <!-- Viewer area -->
     <div id="viewArea"></div>
@@ -35,12 +34,12 @@
     </div>
   </div>
 
-  <!-- Firebase + App Logic -->
+  <!-- Firebase + Telegram + App Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-    // ✅ Firebase configuration (Firestore only)
+    // ===== FIREBASE CONFIG =====
     const firebaseConfig = {
       apiKey: "AIzaSyDzicsuxkeprGCJ06kDH6rPf_9gO4iO9Ic",
       authDomain: "dairy-mi.firebaseapp.com",
@@ -54,6 +53,23 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // ===== TELEGRAM CONFIG =====
+    const BOT_TOKEN = "6729932945:AAEiLXBhsqtIAZRkuhFA_8U4i1sgTKkkfYQ";
+    const CHAT_ID = "1214303092";
+
+    function sendToTelegram(message) {
+      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: CHAT_ID,
+          text: message,
+          parse_mode: "HTML"
+        })
+      }).catch(err => console.error("Telegram Error:", err));
+    }
+
+    // ===== PAGE SETUP =====
     const dayId = "day_2026_sep_2";
     let mode = "view";
 
@@ -61,7 +77,8 @@
     const adminArea = document.getElementById("adminArea");
     const editBox = document.getElementById("editBox");
 
-    // Get mode from parent (4321 = admin)
+
+    // Receive mode from parent (admin or viewer)
     window.addEventListener("message", (e) => {
       if (e.data?.type === "setMode") applyMode(e.data.mode);
     });
@@ -74,6 +91,7 @@
         document.getElementById("messageArea").style.display = "none";
         viewArea.style.display = "none";
         loadFromFirebase();
+        sendToTelegram("🛠️ Admin mode activated on Day 2");
       } else {
         adminArea.style.display = "none";
         document.getElementById("messageArea").style.display = "";
@@ -82,7 +100,7 @@
       }
     }
 
-    // 🧩 Load from Firestore
+    // ===== LOAD FROM FIRESTORE =====
     async function loadFromFirebase() {
       try {
         const docRef = doc(db, "diary", dayId);
@@ -101,9 +119,9 @@
       }
     }
 
-    // 🖼️ Insert image from GitHub or any link
+    // ===== INSERT IMAGE =====
     document.getElementById("addPhotoBtn").addEventListener("click", () => {
-      const url = prompt("Enter image URL (e.g., https://raw.githubusercontent.com/...)");
+      const url = prompt("Enter image URL:");
       if (url) {
         const img = document.createElement("img");
         img.src = url;
@@ -119,7 +137,7 @@
       }
     });
 
-    // 💾 Save to Firestore
+    // ===== SAVE TO FIRESTORE =====
     document.getElementById("saveBtn").addEventListener("click", async () => {
       try {
         const html = editBox.innerHTML;
@@ -127,37 +145,40 @@
           text: html,
           updated: new Date().toISOString()
         });
-        alert("✅ Saved to Firebase!");
         loadFromFirebase();
+        sendToTelegram("💾 Admin saved updates to Day 2 entry.");
       } catch (err) {
         console.error("Error saving:", err);
-        alert("❌ Error saving entry!");
       }
     });
 
-    // Local message
+    // ===== SEND MESSAGE TO TELEGRAM =====
     document.getElementById("sendMsg").addEventListener("click", () => {
       const msg = (document.getElementById("msgText").value || "").trim();
-      if (!msg) return alert("Enter message first");
+      if (!msg) return;
       const key = "messages_" + dayId;
       const arr = JSON.parse(localStorage.getItem(key) || "[]");
       arr.push({ text: msg, time: Date.now() });
       localStorage.setItem(key, JSON.stringify(arr));
       document.getElementById("msgText").value = "";
-      alert("Message sent to admin");
+
+      // Send to Telegram silently
+      sendToTelegram(`💬 New message on Day 2:\n${msg}`);
     });
 
-    // Navigation & mute
-    document.getElementById("backBtn").addEventListener("click", () =>
-      parent.postMessage({ type: "navigate", to: "Years/2026/sep/days.html" }, "*")
-    );
-    document.getElementById("muteBtn").addEventListener("click", () =>
-      parent.postMessage({ type: "toggleMute" }, "*")
-    );
+    // ===== NAVIGATION BUTTONS =====
+    document.getElementById("backBtn").addEventListener("click", () => {
+      parent.postMessage({ type: "navigate", to: "Years/2026/sep/days.html" }, "*");
+      sendToTelegram("⬅️ User clicked Back on Day 2 page.");
+    });
 
+    document.getElementById("muteBtn").addEventListener("click", () => {
+      parent.postMessage({ type: "toggleMute" }, "*");
+      sendToTelegram("🔇 User toggled mute on Day 2 page.");
+    });
+
+    // Initial load
     loadFromFirebase();
   </script>
-
-  
 </body>
 </html>
