@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day 23 — February 2026</title>
+  <link rel="stylesheet" href="../../../style.css" />
+</head>
+<body>
+  <div class="container fade-in">
+    <h2>Day 23 — February 2026</h2>
+
+    <!-- Viewer area -->
+    <div id="viewArea"></div>
+
+    <!-- Admin area -->
+    <div id="adminArea" style="display:none;">
+      <div id="editBox" contenteditable="true"></div>
+      <div class="row" style="margin-top:10px; display:flex; gap:10px;">
+        <button id="addPhotoBtn">Insert Image Link</button>
+        <button id="saveBtn">Save</button>
+      </div>
+    </div>
+
+    <!-- Message area -->
+    <div id="messageArea" style="margin-top:20px;">
+      <textarea id="msgText" placeholder="Send a message to admin..."></textarea>
+      <button id="sendMsg">Send</button>
+    </div>
+
+    <div class="bottom-row">
+      <button id="backBtn">Back</button>
+      <button id="muteBtn">Mute</button>
+    </div>
+  </div>
+
+  <!-- Firebase + Telegram + App Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    // ===== FIREBASE CONFIG =====
+    const firebaseConfig = {
+      apiKey: "AIzaSyDzicsuxkeprGCJ06kDH6rPf_9gO4iO9Ic",
+      authDomain: "dairy-mi.firebaseapp.com",
+      projectId: "dairy-mi",
+      storageBucket: "dairy-mi.appspot.com",
+      messagingSenderId: "772333093317",
+      appId: "1:772333093317:web:ef70b12b4d832caa9c4bac",
+      measurementId: "G-17FXDZ3C65"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // ===== TELEGRAM CONFIG =====
+    const BOT_TOKEN = "6729932945:AAEiLXBhsqtIAZRkuhFA_8U4i1sgTKkkfYQ";
+    const CHAT_ID = "1214303092";
+
+    function sendToTelegram(message) {
+      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: CHAT_ID,
+          text: message,
+          parse_mode: "HTML"
+        })
+      }).catch(err => console.error("Telegram Error:", err));
+    }
+
+    // ===== PAGE SETUP =====
+    const dayId = "day_2026_feb_23";
+    let mode = "view";
+
+    const viewArea = document.getElementById("viewArea");
+    const adminArea = document.getElementById("adminArea");
+    const editBox = document.getElementById("editBox");
+
+
+    // Receive mode from parent (admin or viewer)
+    window.addEventListener("message", (e) => {
+      if (e.data?.type === "setMode") applyMode(e.data.mode);
+    });
+    parent.postMessage({ type: "requestMode" }, "*");
+
+    function applyMode(m) {
+      mode = m;
+      if (mode === "admin") {
+        adminArea.style.display = "";
+        document.getElementById("messageArea").style.display = "none";
+        viewArea.style.display = "none";
+        loadFromFirebase();
+        sendToTelegram("🛠️ Admin mode activated on Day 23");
+      } else {
+        adminArea.style.display = "none";
+        document.getElementById("messageArea").style.display = "";
+        viewArea.style.display = "";
+        loadFromFirebase();
+      }
+    }
+
+    // ===== LOAD FROM FIRESTORE =====
+    async function loadFromFirebase() {
+      try {
+        const docRef = doc(db, "diary", dayId);
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          const content = data.text || "";
+          viewArea.innerHTML = content;
+          if (mode === "admin") editBox.innerHTML = content;
+        } else {
+          viewArea.innerHTML = "<em>No content yet.</em>";
+        }
+      } catch (err) {
+        console.error("Error loading:", err);
+        viewArea.innerHTML = "<em>Failed to load data.</em>";
+      }
+    }
+
+    // ===== INSERT IMAGE =====
+    document.getElementById("addPhotoBtn").addEventListener("click", () => {
+      const url = prompt("Enter image URL:");
+      if (url) {
+        const img = document.createElement("img");
+        img.src = url;
+        img.className = "diary-image";
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount) {
+          const range = sel.getRangeAt(0);
+          range.insertNode(img);
+          range.collapse(false);
+        } else {
+          editBox.appendChild(img);
+        }
+      }
+    });
+
+    // ===== SAVE TO FIRESTORE =====
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+      try {
+        const html = editBox.innerHTML;
+        await setDoc(doc(db, "diary", dayId), {
+          text: html,
+          updated: new Date().toISOString()
+        });
+        loadFromFirebase();
+        sendToTelegram("💾 Admin saved updates to Day 23 entry.");
+      } catch (err) {
+        console.error("Error saving:", err);
+      }
+    });
+
+    // ===== SEND MESSAGE TO TELEGRAM =====
+    document.getElementById("sendMsg").addEventListener("click", () => {
+      const msg = (document.getElementById("msgText").value || "").trim();
+      if (!msg) return;
+      const key = "messages_" + dayId;
+      const arr = JSON.parse(localStorage.getItem(key) || "[]");
+      arr.push({ text: msg, time: Date.now() });
+      localStorage.setItem(key, JSON.stringify(arr));
+      document.getElementById("msgText").value = "";
+
+      // Send to Telegram silently
+      sendToTelegram(`💬 New message on Day 23:\n${msg}`);
+    });
+
+    // ===== NAVIGATION BUTTONS =====
+    document.getElementById("backBtn").addEventListener("click", () => {
+      parent.postMessage({ type: "navigate", to: "Years/2026/feb/days.html" }, "*");
+      sendToTelegram("⬅️ User clicked Back on Day 23 page.");
+    });
+
+    document.getElementById("muteBtn").addEventListener("click", () => {
+      parent.postMessage({ type: "toggleMute" }, "*");
+      sendToTelegram("🔇 User toggled mute on Day 23 page.");
+    });
+
+    // Initial load
+    loadFromFirebase();
+  </script>
+</body>
+</html>
