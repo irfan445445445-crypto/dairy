@@ -200,6 +200,7 @@ button:active {
   font-size: 1.3rem; /* ⬆️ Increased */
   min-height: 110px;
   resize: none;
+  text-align: left;
 }
 
 /* Fade-in animation */
@@ -273,4 +274,62 @@ iframe#contentFrame {
   margin-top: 150px; /* Lowered to avoid overlap with timer/button */
 }
 
+/* 🔥 FIX EDITOR STYLE */
+#editBox {
+  min-height: 240px;
+  border: 2px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 22px;
 
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: bold;
+  line-height: 1.8;
+
+  text-align: left !important;
+  outline: none;
+}
+
+/* FORCE ALL CONTENT */
+#editBox * {
+  color: #fff !important;
+  font-size: 1.8rem !important;
+  font-weight: bold !important;
+  text-align: left !important;
+}
+
+/* 🔥 FIX CONTAINER ALIGNMENT */
+.container {
+  text-align: center;
+}
+
+/* Keep headings centered */
+h1, h2 {
+  text-align: center;
+}
+
+/* 🔥 APPLY SAME STYLE TO VIEW + EDIT */
+#editBox, #viewArea {
+  min-height: 240px;
+  border: 2px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 22px;
+
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: bold;
+  line-height: 1.8;
+
+  text-align: left !important;
+  outline: none;
+}
+
+/* 🔥 FORCE ALL CONTENT INSIDE BOTH */
+#editBox *, #viewArea * {
+  color: #fff !important;
+  font-size: 1.8rem !important;
+  font-weight: bold !important;
+  text-align: left !important;
+}
