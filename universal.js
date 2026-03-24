@@ -9,57 +9,103 @@
   // TELEGRAM LOGGER SETUP
   // =========================
   const BOT_TOKEN = "6729932945:AAEiLXBhsqtIAZRkuhFA_8U4i1sgTKkkfYQ";
-const CHAT_ID = "1214303092";
+  const CHAT_ID = "1214303092";
 
   function getDeviceInfo() {
-  const ua = navigator.userAgent;
+    const ua = navigator.userAgent;
 
-  // Basic device detection
-  let device = "Unknown Device";
-  if (/android/i.test(ua)) device = "📱 Android";
-  else if (/iPhone|iPad|iPod/i.test(ua)) device = "🍎 iOS";
-  else if (/Windows NT/i.test(ua)) device = "💻 Windows PC";
-  else if (/Macintosh/i.test(ua)) device = "🖥️ macOS";
-  else if (/Linux/i.test(ua)) device = "🐧 Linux";
+    let device = "Unknown Device";
+    if (/android/i.test(ua)) device = "📱 Android";
+    else if (/iPhone|iPad|iPod/i.test(ua)) device = "🍎 iOS";
+    else if (/Windows NT/i.test(ua)) device = "💻 Windows PC";
+    else if (/Macintosh/i.test(ua)) device = "🖥️ macOS";
+    else if (/Linux/i.test(ua)) device = "🐧 Linux";
 
-  // Browser detection
-  let browser = "Unknown Browser";
-  if (/Chrome/i.test(ua) && !/Edge/i.test(ua)) browser = "Chrome";
-  else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = "Safari";
-  else if (/Firefox/i.test(ua)) browser = "Firefox";
-  else if (/Edge/i.test(ua)) browser = "Edge";
-  else if (/OPR|Opera/i.test(ua)) browser = "Opera";
+    let browser = "Unknown Browser";
+    if (/Chrome/i.test(ua) && !/Edge/i.test(ua)) browser = "Chrome";
+    else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = "Safari";
+    else if (/Firefox/i.test(ua)) browser = "Firefox";
+    else if (/Edge/i.test(ua)) browser = "Edge";
+    else if (/OPR|Opera/i.test(ua)) browser = "Opera";
 
-  return `${device} • ${browser}`;
-}
+    return `${device} • ${browser}`;
+  }
 
-function getTimestamp() {
-  const now = new Date();
-  return now.toLocaleString("en-MY", { timeZone: "Asia/Kuala_Lumpur" }); // your timezone
-}
+  function getTimestamp() {
+    const now = new Date();
+    return now.toLocaleString("en-MY", { timeZone: "Asia/Kuala_Lumpur" });
+  }
 
-function sendToTelegram(msg) {
-  const fullMsg = `🕒 ${getTimestamp()}\n💻 ${getDeviceInfo()}\n\n${msg}`;
+  function sendToTelegram(msg) {
+    const fullMsg = `🕒 ${getTimestamp()}\n💻 ${getDeviceInfo()}\n\n${msg}`;
 
-  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: CHAT_ID, text: fullMsg })
-  }).catch(err => console.error("Telegram error:", err));
-}
+    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: CHAT_ID, text: fullMsg })
+    }).catch(err => console.error("Telegram error:", err));
+  }
 
-function logEvent(action, details = "") {
-  const message = `📖 [${document.title}] — ${action}${details ? ": " + details : ""}`;
-  sendToTelegram(message);
-}
+  function logEvent(action, details = "") {
+    const message = `📖 [${document.title}] — ${action}${details ? ": " + details : ""}`;
+    sendToTelegram(message);
+  }
 
-logEvent("📂 Main script loaded");
+  logEvent("📂 Main script loaded");
+
+  // =========================
+  // 🔥 FIX: EDITOR CONTROL (PASTE + STYLE)
+  // =========================
+  function applyEditorFixes() {
+    const iframeDoc = contentFrame.contentDocument || contentFrame.contentWindow.document;
+    if (!iframeDoc) return;
+
+    const editBox = iframeDoc.getElementById("editBox");
+    if (!editBox) return;
+
+    // prevent duplicate event binding
+    if (editBox.dataset.fixed) return;
+    editBox.dataset.fixed = "true";
+
+    // 🔥 CLEAN PASTE
+    editBox.addEventListener("paste", (e) => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData("text");
+      iframeDoc.execCommand("insertText", false, text);
+    });
+
+    // 🔥 FORCE STYLE DURING TYPING
+    editBox.addEventListener("input", () => {
+      const all = editBox.querySelectorAll("*");
+      all.forEach(el => {
+        el.style.color = "#fff";
+        el.style.fontSize = "1.8rem";
+        el.style.fontWeight = "bold";
+        el.style.textAlign = "left";
+      });
+    });
+
+    // 🔥 FIX SAVE FUNCTION INSIDE IFRAME
+    const saveBtn = iframeDoc.getElementById("saveBtn");
+    if (saveBtn && !saveBtn.dataset.fixed) {
+      saveBtn.dataset.fixed = "true";
+
+      saveBtn.addEventListener("click", () => {
+        let html = editBox.innerHTML;
+
+        // remove all inline styles before saving
+        html = html.replace(/style="[^"]*"/g, "");
+
+        editBox.innerHTML = html;
+      });
+    }
+  }
 
   // -------------------------
   // Timer settings
   // -------------------------
-  const INACTIVITY_LIMIT = 1 * 60 * 1000; // 1 minute
-  const WARNING_DURATION = 10 * 1000; // 10 seconds
+  const INACTIVITY_LIMIT = 1 * 60 * 1000;
+  const WARNING_DURATION = 10 * 1000;
 
   let inactivityTimer = null;
   let warningTimeout = null;
@@ -141,12 +187,14 @@ logEvent("📂 Main script loaded");
       font-size: 2rem;
       text-align: center;
     `;
+
     inactivityModal.innerHTML = `
       ⚠️ You’ve been inactive for 1 minute.<br>
       This page will close in 10 seconds.<br><br>
       <button id="stayBtn">Yes, Stay Open</button>
       <button id="closeBtn">No, Close</button>
     `;
+
     document.body.appendChild(inactivityModal);
 
     logEvent("⏰ Inactivity warning shown");
@@ -170,7 +218,6 @@ logEvent("📂 Main script loaded");
     };
   }
 
-  // Reset inactivity timer on user interaction
   ["click", "keypress", "mousemove", "scroll"].forEach(evt => {
     document.addEventListener(evt, () => {
       if (sessionStorage.getItem("mode")) startInactivityTimer();
@@ -213,9 +260,9 @@ logEvent("📂 Main script loaded");
 
       case "pageLoaded":
         makeAllButtonsVertical();
+        applyEditorFixes(); // 🔥 IMPORTANT FIX
         logEvent("📄 Page loaded inside iframe");
         break;
-        
     }
   });
 
@@ -248,6 +295,9 @@ logEvent("📂 Main script loaded");
     allButtons.forEach(btn => btn.style.width = "220px");
   }
 
-  contentFrame.addEventListener("load", () => makeAllButtonsVertical());
+  contentFrame.addEventListener("load", () => {
+    makeAllButtonsVertical();
+    applyEditorFixes(); // 🔥 IMPORTANT
+  });
 
 })();
