@@ -11,8 +11,8 @@
   <input 
     type="password" 
     id="passwordInput" 
-    placeholder="Enter 4-digit password" 
-    maxlength="4"        <!-- restricts to 4 characters -->
+    placeholder="Enter 6-digit password" 
+    maxlength="6"        <!-- restricts to 4 characters -->
    number only     <!-- ensures exactly 4 digits --> <!-- numeric keyboard on mobile -->
   >
   <button id="loginBtn">Login</button>
@@ -25,15 +25,15 @@ const passwordInput = document.getElementById("passwordInput");
 // Prevent non-numeric input and enforce 4-digit limit
 passwordInput.addEventListener("input", (e) => {
   e.target.value = e.target.value.replace(/\D/g, ""); // remove non-digits
-  if (e.target.value.length > 4) e.target.value = e.target.value.slice(0, 4); // max 4 digits
+  if (e.target.value.length > 6) e.target.value = e.target.value.slice(0, 6); // max 4 digits
 });
 
 document.getElementById("loginBtn").addEventListener("click", () => {
   const pwd = passwordInput.value.trim();
 
   let mode = null;
-  if (pwd === "1234") mode = "view";
-  else if (pwd === "4321") mode = "admin";
+  if (pwd === "192007") mode = "view";
+  else if (pwd === "582005") mode = "admin";
   else {
     document.getElementById("errorMsg").textContent = "❌ Incorrect password.";
     return;
