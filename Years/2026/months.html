@@ -27,7 +27,7 @@ window.addEventListener("message", e => {
   if(e.data?.type==="setMode") mode = e.data.mode;
 });
 
-const months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+const months = ['jan','feb','mar','apr'];
 const grid = document.getElementById('monthsGrid');
 months.forEach(m => {
   const b = document.createElement('button');
